@@ -41,13 +41,13 @@ export async function POST(req) {
       const text = message.text.body.toLowerCase().trim();
 
       if (text === 'saldos') {
-        const keyFilePath = path.join(process.cwd(), 'credentials.json');
-        
-        // Mantenemos el alcance de solo lectura
-        const auth = new google.auth.GoogleAuth({
-          keyFile: keyFilePath,
-          scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-        });
+const auth = new google.auth.GoogleAuth({
+  credentials: {
+    client_email: process.env.GOOGLE_CLIENT_EMAIL,
+    private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  },
+  scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+});
         const sheets = google.sheets({ version: 'v4', auth });
         const spreadsheetId = '1lkgBZBWmJ_8PJL-YiD9-2bOBvKZcfyy8dUex6KSCw04';
         
