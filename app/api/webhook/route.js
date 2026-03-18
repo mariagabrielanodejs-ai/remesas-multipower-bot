@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
-import path from 'path';
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
@@ -41,21 +40,23 @@ export async function POST(req) {
       const text = message.text.body.toLowerCase().trim();
 
       if (text === 'saldos') {
-const auth = new google.auth.GoogleAuth({
-  credentials: {
-    client_email: process.env.GOOGLE_CLIENT_EMAIL,
-    private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  },
-  scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-});
-        const sheets = google.sheets({ version: 'v4', auth });
+        
+        // --- AUTENTICACIÓN SÚPER SIMPLE CON API KEY ---
+        if (!process.env.GOOGLE_API_KEY) {
+          throw new Error("Falta configurar GOOGLE_API_KEY en Vercel.");
+        }
+
+        const sheets = google.sheets({ 
+          version: 'v4', 
+          auth: process.env.GOOGLE_API_KEY 
+        });
+        
         const spreadsheetId = '1lkgBZBWmJ_8PJL-YiD9-2bOBvKZcfyy8dUex6KSCw04';
         
         const sheetYacdary = 'Jackdari.';
         const sheetRemesas = 'RemesasTopCaja';
         const sheetMarisela = 'Marisela.';
         
-        // Agregamos las celdas C5 para validar los turnos
         const ranges = [
           `${sheetYacdary}!F21`, 
           `${sheetYacdary}!J21`, 
@@ -86,24 +87,21 @@ const auth = new google.auth.GoogleAuth({
         const mercantilMarisela = valueRanges[6]?.values?.[0]?.[0] || '0.00';
         const banescoMarisela = valueRanges[7]?.values?.[0]?.[0] || '0.00';
 
-        // Turnos (Convertimos a mayúsculas para evitar errores si escriben "Si", "si", "SI")
+        // Turnos
         const turnoMarisela = valueRanges[8]?.values?.[0]?.[0]?.toUpperCase() || 'NO';
-        const turnoYacdary = valueRanges[9]?.values?.[0]?.[0]?.toUpperCase() || 'NO';
-
+        
         // --- LÓGICA DE TURNOS ---
         let activeName = '';
         let activeVzla = '';
         let activeMercantil = '';
         let activeBanesco = '';
 
-        // Si Marisela tiene "NO", asumimos que es el turno de Yacdary (o si Yacdary tiene "SI" explícitamente)
         if (turnoMarisela === 'SI') {
           activeName = 'Marisela';
           activeVzla = vzlaMarisela;
           activeMercantil = mercantilMarisela;
           activeBanesco = banescoMarisela;
         } else {
-          // Por descarte, si Marisela es "NO", le toca a Yacdary
           activeName = 'Yacdary';
           activeVzla = vzlaYacdary;
           activeMercantil = mercantilYacdary;
@@ -126,7 +124,7 @@ const auth = new google.auth.GoogleAuth({
 
     return NextResponse.json({ status: 'ok' });
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error procesando el mensaje:', error);
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });
   }
 }
