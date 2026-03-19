@@ -108,8 +108,8 @@ export async function POST(req) {
       const replyText = 
 `*${activeName}*
 *BDV:* ${activeVzla} Bs
-*Mercantil:* ${activeMercantil} Bs
-*Banesco:* ${activeBanesco} Bs
+*Mercantil:* ${activeBanesco} Bs
+*Banesco:* ${activeMercantil} Bs
 
 *RemesasTop*
 *BDV:* ${vzlaRemesas} Bs
