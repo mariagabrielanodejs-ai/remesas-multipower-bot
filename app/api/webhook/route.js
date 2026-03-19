@@ -37,78 +37,75 @@ export async function POST(req) {
       setTimeout(() => processedMessages.delete(messageId), 60000);
 
       const from = message.from; 
-      const text = message.text.body.toLowerCase().trim();
+      
+    
+      if (!process.env.GOOGLE_API_KEY) {
+        throw new Error("Falta configurar GOOGLE_API_KEY en Vercel.");
+      }
 
-      if (text === 'saldos') {
-        
-        // --- AUTENTICACIÓN SÚPER SIMPLE CON API KEY ---
-        if (!process.env.GOOGLE_API_KEY) {
-          throw new Error("Falta configurar GOOGLE_API_KEY en Vercel.");
-        }
+      const sheets = google.sheets({ 
+        version: 'v4', 
+        auth: process.env.GOOGLE_API_KEY 
+      });
+      
+      const spreadsheetId = '1lkgBZBWmJ_8PJL-YiD9-2bOBvKZcfyy8dUex6KSCw04';
+      
+      const sheetYacdary = 'Jackdari.';
+      const sheetRemesas = 'RemesasTopCaja';
+      const sheetMarisela = 'Marisela.';
+      
+      const ranges = [
+        `${sheetYacdary}!F21`, 
+        `${sheetYacdary}!J21`, 
+        `${sheetYacdary}!N22`,
+        `${sheetRemesas}!F26`, 
+        `${sheetRemesas}!N26`,
+        `${sheetMarisela}!F22`, 
+        `${sheetMarisela}!J22`, 
+        `${sheetMarisela}!N22`,
+        `${sheetMarisela}!C5`,
+        `${sheetYacdary}!C5`   
+      ];
 
-        const sheets = google.sheets({ 
-          version: 'v4', 
-          auth: process.env.GOOGLE_API_KEY 
-        });
-        
-        const spreadsheetId = '1lkgBZBWmJ_8PJL-YiD9-2bOBvKZcfyy8dUex6KSCw04';
-        
-        const sheetYacdary = 'Jackdari.';
-        const sheetRemesas = 'RemesasTopCaja';
-        const sheetMarisela = 'Marisela.';
-        
-        const ranges = [
-          `${sheetYacdary}!F21`, 
-          `${sheetYacdary}!J21`, 
-          `${sheetYacdary}!N22`,
-          `${sheetRemesas}!F26`, 
-          `${sheetRemesas}!N26`,
-          `${sheetMarisela}!F22`, 
-          `${sheetMarisela}!J22`, 
-          `${sheetMarisela}!N22`,
-          `${sheetMarisela}!C5`, // Índice 8: Turno Marisela
-          `${sheetYacdary}!C5`   // Índice 9: Turno Yacdary
-        ];
+      const response = await sheets.spreadsheets.values.batchGet({ spreadsheetId, ranges });
+      const valueRanges = response.data.valueRanges;
 
-        const response = await sheets.spreadsheets.values.batchGet({ spreadsheetId, ranges });
-        const valueRanges = response.data.valueRanges;
+      // Saldos Yacdary
+      const vzlaYacdary = valueRanges[0]?.values?.[0]?.[0] || '0.00';
+      const mercantilYacdary = valueRanges[1]?.values?.[0]?.[0] || '0.00';
+      const banescoYacdary = valueRanges[2]?.values?.[0]?.[0] || '0.00';
 
-        // Saldos Yacdary
-        const vzlaYacdary = valueRanges[0]?.values?.[0]?.[0] || '0.00';
-        const mercantilYacdary = valueRanges[1]?.values?.[0]?.[0] || '0.00';
-        const banescoYacdary = valueRanges[2]?.values?.[0]?.[0] || '0.00';
+      // Saldos RemesasTop
+      const vzlaRemesas = valueRanges[3]?.values?.[0]?.[0] || '0.00';
+      const mercantilRemesas = valueRanges[4]?.values?.[0]?.[0] || '0.00';
 
-        // Saldos RemesasTop
-        const vzlaRemesas = valueRanges[3]?.values?.[0]?.[0] || '0.00';
-        const mercantilRemesas = valueRanges[4]?.values?.[0]?.[0] || '0.00';
+      // Saldos Marisela
+      const vzlaMarisela = valueRanges[5]?.values?.[0]?.[0] || '0.00';
+      const mercantilMarisela = valueRanges[6]?.values?.[0]?.[0] || '0.00';
+      const banescoMarisela = valueRanges[7]?.values?.[0]?.[0] || '0.00';
 
-        // Saldos Marisela
-        const vzlaMarisela = valueRanges[5]?.values?.[0]?.[0] || '0.00';
-        const mercantilMarisela = valueRanges[6]?.values?.[0]?.[0] || '0.00';
-        const banescoMarisela = valueRanges[7]?.values?.[0]?.[0] || '0.00';
+      // Turnos
+      const turnoMarisela = valueRanges[8]?.values?.[0]?.[0]?.toUpperCase() || 'NO';
+      
+      // --- LÓGICA DE TURNOS ---
+      let activeName = '';
+      let activeVzla = '';
+      let activeMercantil = '';
+      let activeBanesco = '';
 
-        // Turnos
-        const turnoMarisela = valueRanges[8]?.values?.[0]?.[0]?.toUpperCase() || 'NO';
-        
-        // --- LÓGICA DE TURNOS ---
-        let activeName = '';
-        let activeVzla = '';
-        let activeMercantil = '';
-        let activeBanesco = '';
+      if (turnoMarisela === 'SI') {
+        activeName = 'Marisela';
+        activeVzla = vzlaMarisela;
+        activeMercantil = mercantilMarisela;
+        activeBanesco = banescoMarisela;
+      } else {
+        activeName = 'Yacdary';
+        activeVzla = vzlaYacdary;
+        activeMercantil = mercantilYacdary;
+        activeBanesco = banescoYacdary;
+      }
 
-        if (turnoMarisela === 'SI') {
-          activeName = 'Marisela';
-          activeVzla = vzlaMarisela;
-          activeMercantil = mercantilMarisela;
-          activeBanesco = banescoMarisela;
-        } else {
-          activeName = 'Yacdary';
-          activeVzla = vzlaYacdary;
-          activeMercantil = mercantilYacdary;
-          activeBanesco = banescoYacdary;
-        }
-
-        const replyText = 
+      const replyText = 
 `*${activeName}*
 *BDV:* ${activeVzla} Bs
 *Mercantil:* ${activeMercantil} Bs
@@ -118,8 +115,7 @@ export async function POST(req) {
 *BDV:* ${vzlaRemesas} Bs
 *Mercantil:* ${mercantilRemesas} Bs`;
 
-        await sendWhatsAppMessage(from, replyText);
-      }
+      await sendWhatsAppMessage(from, replyText);
     }
 
     return NextResponse.json({ status: 'ok' });
