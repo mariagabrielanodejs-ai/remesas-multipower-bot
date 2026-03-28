@@ -55,8 +55,8 @@ export async function POST(req) {
       
       const ranges = [
         `${sheetYacdary}!F21`,  // 0: BDV Yacdary
-        `${sheetYacdary}!N21`,  // 1: Mercantil Yacdary
-        `${sheetYacdary}!J22`,  // 2: Banesco Yacdary
+        `${sheetYacdary}!N22`,  // 1: Mercantil Yacdary
+        `${sheetYacdary}!J21`,  // 2: Banesco Yacdary
         `${sheetRemesas}!F26`,  // 3: BDV Remesas
         `${sheetRemesas}!N26`,  // 4: Mercantil Remesas
         `${sheetMarisela}!F22`,  // 5: BDV Marisela
