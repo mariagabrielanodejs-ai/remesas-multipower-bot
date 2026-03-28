@@ -55,8 +55,8 @@ export async function POST(req) {
       
       const ranges = [
         `${sheetYacdary}!F21`,  // 0: BDV Yacdary
-        `${sheetYacdary}!J21`,  // 1: Mercantil Yacdary
-        `${sheetYacdary}!N22`,  // 2: Banesco Yacdary
+        `${sheetYacdary}!N21`,  // 1: Mercantil Yacdary
+        `${sheetYacdary}!J22`,  // 2: Banesco Yacdary
         `${sheetRemesas}!F26`,  // 3: BDV Remesas
         `${sheetRemesas}!N26`,  // 4: Mercantil Remesas
         `${sheetMarisela}!F22`,  // 5: BDV Marisela
@@ -65,7 +65,7 @@ export async function POST(req) {
         `${sheetMarisela}!C5`,   // 8: Turno Marisela
         `${sheetYacdary}!C5`,    // 9: Turno Yacdary
         `${sheetYacdary}!R21`,   // 10: Provincial Yacdary
-        `${sheetMarisela}!R21`   // 11: Provincial Marisela
+        `${sheetMarisela}!R22`   // 11: Provincial Marisela
       ];
 
       const response = await sheets.spreadsheets.values.batchGet({ spreadsheetId, ranges });
