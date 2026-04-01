@@ -60,8 +60,8 @@ export async function POST(req) {
         `${sheetRemesas}!F26`,  // 3: BDV Remesas
         `${sheetRemesas}!N26`,  // 4: Mercantil Remesas
         `${sheetMarisela}!F22`,  // 5: BDV Marisela
-        `${sheetMarisela}!J22`,  // 6: Mercantil Marisela
-        `${sheetMarisela}!N22`,  // 7: Banesco Marisela
+        `${sheetMarisela}!N22`,  // 6: Mercantil Marisela
+        `${sheetMarisela}!J22`,  // 7: Banesco Marisela
         `${sheetMarisela}!C5`,   // 8: Turno Marisela
         `${sheetYacdary}!C5`,    // 9: Turno Yacdary
         `${sheetYacdary}!R21`,   // 10: Provincial Yacdary
