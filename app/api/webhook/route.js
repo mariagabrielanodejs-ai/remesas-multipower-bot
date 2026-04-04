@@ -49,9 +49,9 @@ export async function POST(req) {
       
       const spreadsheetId = '1lkgBZBWmJ_8PJL-YiD9-2bOBvKZcfyy8dUex6KSCw04';
       
-      const sheetYacdary = 'Jackdari.';
+      const sheetYacdary = 'Jacdary';
       const sheetRemesas = 'RemesasTopCaja';
-      const sheetMarisela = 'Marisela.';
+      const sheetMarisela = 'Marisela';
       
       const ranges = [
         `${sheetYacdary}!F21`,  // 0: BDV Yacdary
